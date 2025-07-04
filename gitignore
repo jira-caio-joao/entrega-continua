@@ -1,29 +1,24 @@
-# Ignorar ambiente virtual Python
+
 venv/
 .env/
 ENV/
 
-# Ignorar arquivos do Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.pyc
 
-# Ignorar arquivos de banco de dados e logs
 *.db
 *.log
 *.sqlite3
 
-# Ignorar configurações de IDE
 .idea/
 .vscode/
 *.code-workspace
 
-# Ignorar arquivos de sistema
 .DS_Store
 Thumbs.db
 
-# Ignorar arquivos de ambiente
 .env
 *.env   
