@@ -31,8 +31,9 @@ jobs:
         
     - name: Verify files
       run: |
+        echo "Estrutura de arquivos:"
         ls -la
-        cat requirements.txt
+        echo "Conteúdo do webServerApiSettings.json:"
         cat webServerApiSettings.json
         
     - name: Start virtual display
@@ -40,27 +41,41 @@ jobs:
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         echo "DISPLAY=:99" >> $GITHUB_ENV
         
+    - name: Get server port
+      id: port
+      run: |
+        # Comando robusto com tratamento de erro
+        PORT=$(python -c "import json; try: print(json.load(open('webServerApiSettings.json', 'r'))['webServerPort'] except: print(8080)")
+        echo "PORT=$PORT" >> $GITHUB_ENV
+        echo "Porta do servidor: $PORT"
+        
     - name: Start Flask app
       run: |
-        # Usa a porta do webServerApiSettings.json
-        PORT=$(python -c "import json; print(json.load(open('webServerApiSettings.json'))['webServerPort']")
         nohup python app.py > flask.log 2>&1 &
         sleep 5
-        echo "Flask rodando na porta $PORT"
+        echo "Flask rodando na porta ${{ env.PORT }}"
         cat flask.log
         
     - name: Run Robot tests
       run: |
-        # Obtém a porta dinamicamente
-        PORT=$(python -c "import json; print(json.load(open('webServerApiSettings.json'))['webServerPort']")
-        robot -v PORT:$PORT tests/login_tests.robot
-      
+        # Força a geração dos relatórios no diretório atual
+        robot -d ./ -v PORT:${{ env.PORT }} tests/login_tests.robot
+        
+    - name: List generated files
+      run: |
+        echo "Arquivos gerados:"
+        ls -la
+        echo "Verificando relatórios:"
+        [ -f "report.html" ] && echo "report.html encontrado" || echo "report.html NÃO encontrado"
+        [ -f "log.html" ] && echo "log.html encontrado" || echo "log.html NÃO encontrado"
+        [ -f "output.xml" ] && echo "output.xml encontrado" || echo "output.xml NÃO encontrado"
+        
     - name: Upload reports
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: robot-reports
         path: |
-          report.html
-          log.html
-          output.xml
+          ./report.html
+          ./log.html
+          ./output.xml

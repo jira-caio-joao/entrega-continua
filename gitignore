@@ -26,4 +26,4 @@ Thumbs.db
 
 # Ignorar arquivos de ambiente
 .env
-*.env
+*.env   
