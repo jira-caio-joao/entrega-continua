@@ -1,5 +1,6 @@
-Flask==2.1.2
-robotframework==6.0.2
-robotframework-seleniumlibrary==6.0.0
-robotframework-pabot==2.5.5
-webdrivermanager==0.10.0
+Flask==3.0.3
+robotframework==7.0.1
+robotframework-seleniumlibrary==7.0.0
+robotframework-pabot==4.2.0
+selenium==4.21.0  
+webdrivermanager==0.11.0

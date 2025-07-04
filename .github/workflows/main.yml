@@ -19,23 +19,33 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Validate JSON
-      run: |
-        if [ -f "webServerApiSettings.json" ]; then
-            python -m json.tool webServerApiSettings.json > /dev/null || (echo "JSON inválido!"; exit 1)
-        else
-            echo "Usando porta padrão 8080 (arquivo não encontrado)"
-            echo "PORT=8080" >> $GITHUB_ENV
-        fi
-
-    - name: Install dependencies
+    - name: Install Chrome browser
       run: |
         sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Install ChromeDriver
+      run: |
+        # Instala a versão compatível com o Chrome instalado
+        CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+        CHROME_MAJOR_VERSION=${CHROME_VERSION%.*.*}
+        wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION
+        CHROMEDRIVER_VERSION=$(cat LATEST_RELEASE_$CHROME_MAJOR_VERSION)
+        wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/
+        chromedriver --version
+
+    - name: Install system dependencies
+      run: |
         sudo apt-get install -y xvfb libgtk-3-dev libasound2-dev
+        
+    - name: Install Python dependencies
+      run: |
         pip install --upgrade pip
         pip install -r requirements.txt
         
-        
+  
     - name: Start services
       run: |
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
@@ -55,4 +65,3 @@ jobs:
           ./report.html
           ./log.html
           ./output.xml
-        retention-days: 3

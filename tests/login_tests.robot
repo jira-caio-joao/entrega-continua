@@ -1,6 +1,6 @@
 *** Settings ***
 Library    SeleniumLibrary
-Suite Setup     Open Browser    http://localhost:${PORT}/login    Chrome
+Suite Setup     Open Browser    http://localhost:${PORT}/login    headlesschrome
 Suite Teardown  Close Browser
 
 *** Variables ***
