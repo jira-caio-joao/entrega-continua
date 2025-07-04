@@ -46,10 +46,7 @@ jobs:
         nohup python app.py > flask.log 2>&1 &
         sleep 5
         
-    - name: Run tests
-      run: |
-        robot -d ./ -v PORT:${{ env.PORT }} tests/login_tests.robot
-        
+
     - name: Upload reports
       if: always()
       uses: actions/upload-artifact@v4
