@@ -3,4 +3,4 @@ robotframework==7.0.1
 robotframework-seleniumlibrary==6.7.1 
 robotframework-pabot==4.2.0
 selenium==4.21.0
-webdrivermanager==0.11.0
+webdrivermanager==0.10.0
