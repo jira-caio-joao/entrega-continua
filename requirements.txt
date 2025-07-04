@@ -1,5 +1,6 @@
 Flask==2.1.2
+Flask==2.1.2
 robotframework==6.0.2
 robotframework-seleniumlibrary==6.0.0
-robotframework-pabot==2.6.1
+robotframework-pabot==2.5.5  # Última versão antes da 2.6.x
 webdrivermanager==0.10.0
