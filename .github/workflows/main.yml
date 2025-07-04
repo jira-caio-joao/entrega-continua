@@ -19,56 +19,43 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install system dependencies
+    - name: Validate JSON
+      run: |
+        if [ -f "webServerApiSettings.json" ]; then
+            python -m json.tool webServerApiSettings.json > /dev/null || (echo "JSON inválido!"; exit 1)
+        else
+            echo "Usando porta padrão 8080 (arquivo não encontrado)"
+            echo "PORT=8080" >> $GITHUB_ENV
+        fi
+
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y xvfb libgtk-3-dev libasound2-dev
-        
-    - name: Install Python dependencies
-      run: |
         pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Verify files
-      run: |
-        echo "Estrutura de arquivos:"
-        ls -la
-        echo "Conteúdo do webServerApiSettings.json:"
-        cat webServerApiSettings.json
-        
-    - name: Start virtual display
-      run: |
-        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-        
     - name: Get server port
-      id: port
+      if: ${{ !env.PORT }}
       run: |
-        # Comando robusto com tratamento de erro
-        PORT=$(python -c "import json; try: print(json.load(open('webServerApiSettings.json', 'r'))['webServerPort'] except: print(8080)")
+        PORT=$(python -c "import json; \
+        try: \
+            with open('webServerApiSettings.json', 'r') as f: \
+                print(json.load(f)['webServerPort']) \
+        except: \
+            print(8080)")
         echo "PORT=$PORT" >> $GITHUB_ENV
         echo "Porta do servidor: $PORT"
         
-    - name: Start Flask app
+    - name: Start services
       run: |
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         nohup python app.py > flask.log 2>&1 &
         sleep 5
-        echo "Flask rodando na porta ${{ env.PORT }}"
-        cat flask.log
         
-    - name: Run Robot tests
+    - name: Run tests
       run: |
-        # Força a geração dos relatórios no diretório atual
         robot -d ./ -v PORT:${{ env.PORT }} tests/login_tests.robot
-        
-    - name: List generated files
-      run: |
-        echo "Arquivos gerados:"
-        ls -la
-        echo "Verificando relatórios:"
-        [ -f "report.html" ] && echo "report.html encontrado" || echo "report.html NÃO encontrado"
-        [ -f "log.html" ] && echo "log.html encontrado" || echo "log.html NÃO encontrado"
-        [ -f "output.xml" ] && echo "output.xml encontrado" || echo "output.xml NÃO encontrado"
         
     - name: Upload reports
       if: always()
@@ -79,3 +66,4 @@ jobs:
           ./report.html
           ./log.html
           ./output.xml
+        retention-days: 3
