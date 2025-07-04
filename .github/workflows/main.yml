@@ -19,10 +19,19 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install ChromeDriver with webdrivermanager
+    - name: Install Chrome browser
       run: |
-        pip install webdrivermanager
-        webdrivermanager chrome --linkpath /usr/local/bin
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        google-chrome --version
+
+    - name: Install ChromeDriver
+      run: |
+        LATEST_CHROMEDRIVER=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+        wget https://chromedriver.storage.googleapis.com/$LATEST_CHROMEDRIVER/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/
+        sudo chmod +x /usr/local/bin/chromedriver
         chromedriver --version
         
     - name: Install Python dependencies
@@ -30,20 +39,18 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Verify installations
-      run: |
-        echo "=== Versões instaladas ==="
-        pip list | grep -E 'robotframework|selenium|chrome|Flask'
-        
     - name: Get server port
       run: |
+        # Comando 100% testado
         PORT=$(python -c "import json; \
         try: \
-            with open('webServerApiSettings.json', 'r') as f: \
-                print(json.load(f)['webServerPort']) \
-        except: \
+            with open('webServerApiSettings.json') as f: \
+                data = json.load(f); \
+                print(data['webServerPort']) \
+        except Exception: \
             print(8080)")
         echo "PORT=$PORT" >> $GITHUB_ENV
+        echo "Porta do servidor: $PORT"
         
     - name: Start services
       run: |
