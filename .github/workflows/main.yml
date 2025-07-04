@@ -27,12 +27,13 @@ jobs:
     - name: Install Python dependencies
       run: |
         pip install --upgrade pip
-        pip install -r github/worldflows/requirements.txt
+        pip install -r requirements.txt
         
-    - name: Verify installations
+    - name: Verify files
       run: |
-        pip list
-        robot --version
+        ls -la
+        cat requirements.txt
+        cat webServerApiSettings.json
         
     - name: Start virtual display
       run: |
@@ -41,14 +42,18 @@ jobs:
         
     - name: Start Flask app
       run: |
+        # Usa a porta do webServerApiSettings.json
+        PORT=$(python -c "import json; print(json.load(open('webServerApiSettings.json'))['webServerPort']")
         nohup python app.py > flask.log 2>&1 &
         sleep 5
+        echo "Flask rodando na porta $PORT"
         cat flask.log
         
     - name: Run Robot tests
       run: |
-        robot tests/login_tests.robot
-    
+        # Obtém a porta dinamicamente
+        PORT=$(python -c "import json; print(json.load(open('webServerApiSettings.json'))['webServerPort']")
+        robot -v PORT:$PORT tests/login_tests.robot
       
     - name: Upload reports
       if: always()

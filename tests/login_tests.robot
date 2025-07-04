@@ -1,7 +1,10 @@
 *** Settings ***
 Library    SeleniumLibrary
-Suite Setup     Open Browser    http://localhost:5000/login    Chrome
+Suite Setup     Open Browser    http://localhost:${PORT}/login    Chrome
 Suite Teardown  Close Browser
+
+*** Variables ***
+${PORT}    8080  # Valor padrão, será sobrescrito
 
 *** Test Cases ***
 Valid Login
@@ -11,7 +14,7 @@ Valid Login
     Page Should Contain  Bem-vindo ao Sistema!
 
 Invalid Login
-    Go To    http://localhost:5000/login
+    Go To    http://localhost:${PORT}/login
     Input Text      username    invalido@teste.com
     Input Password  password    errada
     Click Button    Entrar
