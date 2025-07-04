@@ -35,17 +35,6 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Get server port
-      if: ${{ !env.PORT }}
-      run: |
-        PORT=$(python -c "import json; \
-        try: \
-            with open('webServerApiSettings.json', 'r') as f: \
-                print(json.load(f)['webServerPort']) \
-        except: \
-            print(8080)")
-        echo "PORT=$PORT" >> $GITHUB_ENV
-        echo "Porta do servidor: $PORT"
         
     - name: Start services
       run: |
