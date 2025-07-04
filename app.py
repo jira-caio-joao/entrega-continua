@@ -7,15 +7,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Carregar configurações de porta
+
 try:
     with open('webServerApiSettings.json') as f:
         config = json.load(f)
     WEB_SERVER_PORT = config.get('webServerPort', 8080)
 except (FileNotFoundError, json.JSONDecodeError):
-    WEB_SERVER_PORT = 8080  # Porta padrão se o arquivo não existir
+    WEB_SERVER_PORT = 8080  
 
-# Configuração do banco de dados
+
 DATABASE = 'users.db'
 
 def init_db():
@@ -27,7 +27,6 @@ def init_db():
             password TEXT NOT NULL
         )
         ''')
-        # Adicionar usuário de teste se não existir
         try:
             hashed_password = generate_password_hash('senha123')
             conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", 
